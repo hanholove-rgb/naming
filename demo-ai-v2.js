@@ -50,12 +50,12 @@
   function extractMemories(text) {
     const out = [];
     const rules = [
-      { re: /(?:나는|난)\s+(.{1,24}?)(?:을|를)\s*좋아해(?:요)?/i, type: "PREFERENCE", imp: .78, fmt: x => x + "을(를) 좋아함" },
+      { re: /(?:나는|난)\s+(.{1,24}?)(?:을|를)\s*좋아해(?:요)?/i, type: "PREFERENCE", imp: .78, fmt: x => x + " 좋아함" },
       { re: /(?:내\s*)?취미(?:는|가)\s+(.{1,28}?)(?:이야|예요|입니다|야|요|$)/i, type: "HOBBY", imp: .82, fmt: x => "취미는 " + x },
       { re: /요즘\s+(.{1,28}?)에\s+관심(?:이\s*)?(?:있어|있어요|많아)/i, type: "INTEREST", imp: .72, fmt: x => x + "에 관심이 있음" },
       { re: /(?:나는|난)\s+(.{1,24}?)에\s+살아/i, type: "PROFILE", imp: .72, fmt: x => x + "에 거주한다고 말함" },
       { re: /(?:내\s*)?생일(?:은|이)\s+(.{1,20}?)(?:이야|예요|입니다|야|요|$)/i, type: "PROFILE", imp: .95, fmt: x => "생일은 " + x },
-      { re: /(?:커피보다|차라리)\s+(.{1,20}?)\s*(?:가|이)?\s*(?:더\s*)?좋아/i, type: "PREFERENCE", imp: .8, fmt: x => x + "을(를) 더 선호함" }
+      { re: /(?:커피보다|차라리)\s+(.{1,20}?)\s*(?:가|이)?\s*(?:더\s*)?좋아/i, type: "PREFERENCE", imp: .8, fmt: x => x + " 더 선호함" }
     ];
     for (const r of rules) {
       const m = text.match(r.re);
@@ -71,7 +71,8 @@
     if (/너.*(?:AI|인공지능|사람이야)|실제 사람이야|정체/.test(text)) return "identity";
     if (/안녕|반가워|왔어/.test(text)) return "greeting";
     if (/힘들|지쳐|피곤|슬퍼|우울|속상|화나|짜증|불안|걱정/.test(text)) return "comfort";
-    if (/여행|바다|산|휴가|호텔/.test(text)) return "travel";
+    if (/(?:내\s*)?취미(?:는|가)/.test(text)) return "chat";
+    if (/여행|바다|휴가|호텔|산에|산으로/.test(text)) return "travel";
     if (/커피|차|음식|먹|맛집|배고/.test(text)) return "food";
     if (/회사|직장|업무|일 때문에|상사|퇴근/.test(text)) return "work";
     if (/잠|졸려|수면|못 잤/.test(text)) return "sleep";
