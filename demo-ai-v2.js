@@ -69,11 +69,11 @@
     if (/너.*(?:AI|인공지능|사람이야)|실제 사람이야|정체/.test(text)) return "identity";
     if (/안녕|반가워|왔어/.test(text)) return "greeting";
     if (/힘들|지쳐|피곤|슬퍼|우울|속상|화나|짜증|불안|걱정/.test(text)) return "comfort";
-    if (/좋아해|사랑|보고 싶|설레/.test(text)) return "affection";
     if (/여행|바다|산|휴가|호텔/.test(text)) return "travel";
     if (/커피|차|음식|먹|맛집|배고/.test(text)) return "food";
     if (/회사|직장|업무|일 때문에|상사|퇴근/.test(text)) return "work";
     if (/잠|졸려|수면|못 잤/.test(text)) return "sleep";
+    if (/사랑해|보고 싶|설레|(?:너|네가|니가).{0,8}좋아|좋아해.{0,8}(?:너|너를)/.test(text)) return "affection";
     if (/[?？]$|왜|어때|뭐|어디|언제|어떻게|궁금/.test(text)) return "question";
     return "chat";
   }
