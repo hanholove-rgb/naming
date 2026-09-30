@@ -43,7 +43,11 @@
     if (/불안|걱정|무서|초조/.test(t)) return "anxious";
     if (/사랑해|보고 싶|설레|(?:너|네가|니가).{0,8}좋아|좋아해.{0,8}(?:너|너를)/.test(t)) return "affection";
     if (/신나|기뻐|행복|재밌|좋은 일/.test(t)) return "happy";
-    if (/기대|두근|흥분|드디어/.test(t)) return "ex  function extractMemories(text) {
+    if (/기대|두근|흥분|드디어/.test(t)) return "excited";
+    return "neutral";
+  }
+
+  function extractMemories(text) {
     const out = [];
     const rules = [
       { re: /(?:나는|난)\s+(.{1,24}?)(?:을|를)\s*좋아해(?:요)?/i, type: "PREFERENCE", imp: .78, fmt: x => x + "을(를) 좋아함" },
@@ -60,8 +64,6 @@
     if (/요즘.*(?:피곤|지쳐|힘들)/.test(text)) {
       out.push({type:"EMOTION", content:"최근 피곤하거나 힘든 시기를 보내고 있음", importance:.62});
     }
-    return out;
-  }portance:.62});
     return out;
   }
 
