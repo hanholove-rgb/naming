@@ -3,80 +3,110 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#151020">
-<title>두근AI — 무료 AI 동반자</title>
-<style>
-:root{--bg:#0f0c18;--card:#1a1526;--line:#ffffff1c;--txt:#fff;--mut:#b9b1c8;--pink:#ff5f92;--pur:#8869ff}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;background:radial-gradient(circle at 20% 0,#3b2141,transparent 36%),radial-gradient(circle at 90% 10%,#29205d,transparent 32%),var(--bg);color:var(--txt)}button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-.top{height:64px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;background:#0c0914bc;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.brand{display:flex;gap:9px;align-items:center;font-size:20px;font-weight:900}.logo{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),var(--pur))}.badge{font-size:10px;color:#bff6dc;border:1px solid #5fe0a755;background:#5fe0a71a;padding:5px 8px;border-radius:999px}.gear{width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:#ffffff0e;color:#fff}
-.landing{max-width:1050px;margin:auto;padding:38px 18px 60px}.hero{text-align:center;max-width:720px;margin:0 auto 30px}.hero h1{font-size:clamp(38px,8vw,66px);line-height:1.08;letter-spacing:-3px;margin:12px 0;background:linear-gradient(90deg,#ff94b6,#b7a5ff);-webkit-background-clip:text;color:transparent}.hero p{color:var(--mut);line-height:1.7}.free{display:inline-block;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:#ffffff0b;color:#e4dff0;font-size:12px}
-.partners{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.partner{border:1px solid var(--line);border-radius:24px;padding:16px;text-align:left;color:#fff;background:linear-gradient(160deg,#2a213a,#17121f);transition:.2s}.partner:hover,.partner.sel{transform:translateY(-3px);border-color:#ff86ae88;box-shadow:0 20px 50px #0005}.mini{height:210px;border-radius:18px;display:grid;place-items:end center;margin-bottom:14px;overflow:hidden}.haeun{background:radial-gradient(circle at 50% 20%,#86596f,#35253f 58%,#16121d)}.seojun{background:radial-gradient(circle at 50% 20%,#4e7193,#26394d 58%,#111a23)}.yuri{background:radial-gradient(circle at 50% 20%,#916d9d,#402e50 58%,#18131f)}.face{width:128px;height:164px;border-radius:48% 48% 40% 40%;background:linear-gradient(#f7d9ca,#efc2b0);position:relative;margin-bottom:8px;box-shadow:0 15px 25px #0005}.face:before{content:"";position:absolute;inset:-18px -14px auto;height:75px;border-radius:55% 55% 40% 40%;background:#20151e}.face:after{content:"•  •\A  ︶";white-space:pre;position:absolute;inset:63px 0 auto;text-align:center;color:#4a3038;font-size:25px;line-height:31px}.partner h3{margin:0;font-size:21px}.partner p{color:var(--mut);font-size:13px;line-height:1.55;margin:7px 0 0}.setup{max-width:540px;margin:22px auto 0;display:flex;gap:10px}.setup input{flex:1;min-width:0;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:#0c0914aa;color:#fff}.start{border:0;border-radius:14px;padding:14px 20px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--pink),var(--pur))}
-.chat{height:calc(100vh - 64px);padding:14px;display:grid;grid-template-columns:minmax(0,1.42fr) minmax(330px,.58fr);gap:14px}.stage{min-height:540px;border:1px solid var(--line);border-radius:24px;overflow:hidden;position:relative;display:flex;align-items:flex-end;justify-content:center;background:radial-gradient(circle at 50% 20%,#684b75,#32263e 32%,#15121d 76%)}.stage.cafe{background:radial-gradient(circle at 40% 18%,#b37c55,#584137 34%,#18151c 76%)}.stage.night{background:radial-gradient(circle at 55% 18%,#35538f,#1e2f5e 35%,#0c101e 76%)}.stage.walk{background:radial-gradient(circle at 45% 18%,#638665,#314c39 35%,#0e1914 76%)}.scene{position:absolute;left:16px;top:16px;z-index:6;padding:8px 10px;border-radius:999px;background:#0005;font-size:12px}.who{position:absolute;right:16px;top:16px;z-index:6;text-align:right}.who strong{display:block}.who small{color:#ddd5e8}
-.avatar{width:min(430px,70vw);height:min(620px,72vh);position:relative;filter:drop-shadow(0 30px 30px #0006);animation:breathe 4s ease-in-out infinite}.hair{position:absolute;width:270px;height:390px;border-radius:48% 48% 38% 38%;background:linear-gradient(145deg,#281a24,#100c12);left:50%;top:58px;transform:translateX(-50%)}.head{position:absolute;width:215px;height:270px;border-radius:47% 47% 42% 42%/42% 42% 56% 56%;background:linear-gradient(#f7d8c9,#eebfad);left:50%;top:95px;transform:translateX(-50%);z-index:3}.head:before{content:"";position:absolute;inset:-9px -4px auto;height:92px;background:#1c121a;border-radius:55% 55% 38% 38%;clip-path:polygon(0 0,100% 0,94% 70%,72% 38%,51% 75%,29% 38%,6% 69%)}.eyes{position:absolute;top:126px;left:0;right:0;text-align:center;color:#3a2930;font-size:27px;letter-spacing:34px;padding-left:34px}.mouth{position:absolute;left:50%;top:199px;transform:translateX(-50%);width:46px;height:18px;border-bottom:5px solid #a45a67;border-radius:0 0 50% 50%}.avatar.talk .mouth{height:32px;width:36px;border:5px solid #a45a67;border-top-width:2px;border-radius:50%;background:#632c36;animation:talk .18s infinite alternate}.neck{position:absolute;width:74px;height:90px;background:#efc2b1;left:50%;top:337px;transform:translateX(-50%);z-index:2}.body{position:absolute;width:335px;height:245px;left:50%;bottom:0;transform:translateX(-50%);border-radius:48% 48% 8% 8%/30% 30% 8% 8%;background:linear-gradient(145deg,#f0eaf2,#aaa0b5);z-index:1}.subtitle{position:absolute;bottom:22px;z-index:7;width:min(78%,680px);padding:12px 15px;border:1px solid #ffffff26;border-radius:14px;background:#07060ca8;backdrop-filter:blur(12px);text-align:center;line-height:1.5}
-.side{display:grid;grid-template-rows:auto minmax(300px,1fr) auto;gap:12px;min-width:0}.card{border:1px solid var(--line);border-radius:20px;background:#1a1526db;backdrop-filter:blur(14px);padding:15px;overflow:hidden}.rel{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}.meter{height:9px;border-radius:999px;background:#ffffff14;overflow:hidden}.meter i{display:block;height:100%;width:18%;border-radius:999px;background:linear-gradient(90deg,var(--pink),var(--pur));transition:.3s}.relfoot{display:flex;justify-content:space-between;margin-top:6px;color:var(--mut);font-size:11px}.messages{height:100%;display:flex;flex-direction:column;gap:8px;overflow:auto;padding:2px 2px 10px}.msg{max-width:88%;padding:10px 12px;border-radius:14px;line-height:1.55;font-size:13px;white-space:pre-wrap}.msg.ai{align-self:flex-start;background:#ffffff12;border-bottom-left-radius:4px}.msg.user{align-self:flex-end;background:linear-gradient(135deg,#b94e76,#7153c6);border-bottom-right-radius:4px}.composer{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--line)}.composer input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;background:#05050959;color:#fff;padding:11px 12px}.send{width:44px;border:0;border-radius:12px;color:#fff;background:linear-gradient(135deg,var(--pink),var(--pur))}
-.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ctl{border:1px solid var(--line);background:#ffffff0c;color:#fff;border-radius:13px;padding:10px 6px;font-size:12px}.ctl b{display:block;font-size:18px}.mems{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.mem{font-size:11px;padding:6px 8px;background:#ffffff10;border-radius:999px;color:#ddd5e7}.empty{font-size:12px;color:var(--mut)}
-.modal{position:fixed;inset:0;z-index:50;background:#05040bb8;display:grid;place-items:center;padding:18px}.box{width:min(520px,100%);border:1px solid var(--line);border-radius:24px;background:#1b1728;padding:22px;box-shadow:0 30px 80px #0008}.close{float:right;border:0;background:transparent;color:#fff;font-size:26px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice{border:1px solid var(--line);background:#ffffff0c;color:#fff;border-radius:15px;padding:14px 8px}.choice span{display:block;font-size:27px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.row small{display:block;color:var(--mut);margin-top:3px}.danger{width:100%;margin-top:10px;padding:11px;border:1px solid #ff668055;border-radius:12px;background:#ff668012;color:#ffb4c1}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(15px);opacity:0;z-index:90;background:#fff;color:#241a2d;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;transition:.25s}.toast.on{opacity:1;transform:translateX(-50%)}
-@keyframes breathe{50%{transform:translateY(-7px)}}@keyframes talk{from{transform:translateX(-50%) scaleY(.72)}to{transform:translateX(-50%) scaleY(1.08)}}
-@media(max-width:860px){.partners{grid-template-columns:1fr}.mini{height:165px}.chat{height:auto;min-height:calc(100vh - 64px);grid-template-columns:1fr;padding:10px}.stage{min-height:58vh}.side{grid-template-rows:auto 420px auto}.avatar{height:500px;width:330px}.setup{flex-direction:column}}@media(max-width:470px){.stage{min-height:510px}.avatar{transform:scale(.86);transform-origin:bottom}.side{grid-template-rows:auto 390px auto}.choices{grid-template-columns:1fr}.top{padding:0 12px}}
-</style>
+<meta name="theme-color" content="#0b0911">
+<meta name="description" content="두근AI — 실사풍 AI 동반자 데모">
+<title>두근AI — 실사풍 AI 동반자</title>
+<link rel="stylesheet" href="styles-v2.css?v=2">
 </head>
 <body>
-<header class="top"><div class="brand"><span class="logo">♥</span>두근AI <span class="badge">AI 캐릭터</span></div><button id="settings" class="gear" aria-label="설정">⚙</button></header>
+<header class="top">
+  <div class="brand"><span class="logo">♥</span>두근AI <span class="badge">AI 캐릭터</span></div>
+  <button id="settings" class="gear" aria-label="설정">⚙</button>
+</header>
+
 <main id="landing" class="landing">
-<section class="hero"><span class="free">✨ 완전 무료 데모 · API 키 불필요</span><h1>대화할수록 가까워지는<br>AI 파트너</h1><p>파트너를 고르고 대화하면서 호감도와 기억을 쌓아보세요. 대화와 기억은 이 기기의 브라우저에만 저장됩니다.</p></section>
-<section class="partners">
-<button class="partner sel" data-id="haeun"><div class="mini haeun"><div class="face"></div></div><h3>하은</h3><p>따뜻하고 장난스럽지만 서두르지 않는 타입.</p></button>
-<button class="partner" data-id="seojun"><div class="mini seojun"><div class="face"></div></div><h3>서준</h3><p>차분하게 잘 들어주고 담백하게 대화하는 타입.</p></button>
-<button class="partner" data-id="yuri"><div class="mini yuri"><div class="face"></div></div><h3>유리</h3><p>밝고 솔직하고 살짝 장난기가 있는 타입.</p></button>
-</section>
-<div class="setup"><input id="name" maxlength="12" value="친구" placeholder="내 이름" aria-label="내 이름"><button id="start" class="start">대화 시작하기 →</button></div>
+  <section class="hero">
+    <span class="eyebrow">✨ 실사풍 캐릭터 · Demo AI 2.0 · API 키 불필요</span>
+    <h1>대화할수록<br>조금씩 가까워지는 AI</h1>
+    <p>실제 사람이 아닌 가상 AI 캐릭터입니다. 취향과 최근 대화를 이 브라우저에 기억하고, 관계 단계와 데이트 상황에 맞춰 대화를 이어갑니다.</p>
+  </section>
+
+  <section class="partners" aria-label="AI 파트너 선택">
+    <button class="partner sel" data-id="haeun">
+      <div class="partner-photo-wrap"><img class="partner-photo" data-photo="haeun" alt="AI 캐릭터 하은"></div>
+      <div class="partner-meta"><h3>하은 · 29</h3><p>따뜻하고 차분하며, 작은 이야기를 세심하게 기억하는 타입.</p></div>
+    </button>
+    <button class="partner" data-id="seojun">
+      <div class="partner-photo-wrap"><img class="partner-photo" data-photo="seojun" alt="AI 캐릭터 서준"></div>
+      <div class="partner-meta"><h3>서준 · 32</h3><p>담백하고 안정적이며, 한 번에 하나씩 천천히 들어주는 타입.</p></div>
+    </button>
+    <button class="partner" data-id="yuri">
+      <div class="partner-photo-wrap"><img class="partner-photo" data-photo="yuri" alt="AI 캐릭터 유리"></div>
+      <div class="partner-meta"><h3>유리 · 27</h3><p>밝고 솔직하고 장난기 있지만, 진지한 순간에는 바로 톤을 낮추는 타입.</p></div>
+    </button>
+  </section>
+
+  <div class="setup">
+    <input id="userName" maxlength="12" value="친구" placeholder="내 이름" aria-label="내 이름">
+    <button id="start" class="start">대화 시작하기 →</button>
+  </div>
 </main>
-<section id="chat" class="chat hidden">
-<div id="stage" class="stage"><div id="scene" class="scene">● 영상통화</div><div class="who"><strong id="pname">하은</strong><small>AI 캐릭터 · 온라인</small></div><div id="avatar" class="avatar"><div class="hair"></div><div class="neck"></div><div class="body"></div><div class="head"><div class="eyes">• •</div><div class="mouth"></div></div></div><div id="subtitle" class="subtitle">안녕하세요. 오늘부터 천천히 알아가요.</div></div>
-<aside class="side">
-<div class="card"><div class="rel"><span>우리 사이</span><strong id="level">첫 만남</strong></div><div class="meter"><i id="fill"></i></div><div class="relfoot"><span>낯섦</span><b id="score">18</b><span>가까움</span></div></div>
-<div class="card" style="display:grid;grid-template-rows:1fr auto"><div id="msgs" class="messages"></div><form id="form" class="composer"><input id="input" autocomplete="off" placeholder="메시지를 입력하세요" aria-label="메시지"><button class="send" aria-label="전송">➤</button></form></div>
-<div class="card"><div class="controls"><button id="mic" class="ctl"><b>🎙</b>말하기</button><button id="date" class="ctl"><b>♥</b>데이트</button><button id="voice" class="ctl"><b id="vicon">🔊</b>AI 음성</button></div><div id="mems" class="mems"></div></div>
-</aside>
+
+<section id="app" class="app hidden">
+  <div id="stage" class="stage">
+    <div class="stage-bg"></div>
+    <img id="heroPortrait" class="hero-portrait emotion-neutral" alt="선택한 AI 캐릭터">
+    <div id="sceneChip" class="scene-chip">● 영상통화</div>
+    <div class="identity"><strong id="partnerName">하은</strong><small>AI 캐릭터 · 온라인</small></div>
+    <div id="emotionChip" class="emotion-chip">🙂 편안함</div>
+    <div id="subtitle" class="subtitle">오늘은 어떤 이야기를 해볼까요?</div>
+  </div>
+
+  <aside class="side">
+    <div class="card">
+      <div class="rel"><span>우리 사이</span><strong id="relLevel">첫 만남</strong></div>
+      <div class="meter"><i id="meterFill"></i></div>
+      <div class="rel-foot"><span>낯섦</span><b id="score">18</b><span>가까움</span></div>
+    </div>
+
+    <div class="card" style="display:grid;grid-template-rows:1fr auto">
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <form id="chatForm" class="composer">
+        <input id="messageInput" autocomplete="off" maxlength="500" placeholder="메시지를 입력하세요" aria-label="메시지">
+        <button class="send" aria-label="전송">➤</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="controls">
+        <button id="mic" class="ctl" aria-label="음성 입력"><b>🎙</b>말하기</button>
+        <button id="dateBtn" class="ctl" aria-label="데이트 장소 선택"><b>♥</b>데이트</button>
+        <button id="voiceBtn" class="ctl" aria-label="AI 음성 켜기 또는 끄기"><b id="voiceIcon">🔊</b>AI 음성</button>
+      </div>
+      <div class="memory-title"><span>기억</span><span id="memCount">0개</span></div>
+      <div id="memories" class="mems"></div>
+    </div>
+  </aside>
 </section>
-<div id="dateModal" class="modal hidden"><div class="box"><button class="close" data-x="dateModal">×</button><h2>오늘은 어디에서 만날까요?</h2><div class="choices"><button class="choice" data-scene="cafe"><span>☕</span>카페</button><button class="choice" data-scene="night"><span>🌃</span>도시 야경</button><button class="choice" data-scene="walk"><span>🌿</span>공원 산책</button></div></div></div>
-<div id="settingsModal" class="modal hidden"><div class="box"><button class="close" data-x="settingsModal">×</button><h2>설정</h2><div class="row"><span><strong>대화 엔진</strong><small>무료 브라우저 데모 AI</small></span><span class="badge">DEMO</span></div><div class="row"><span><strong>AI 음성</strong><small>기기의 한국어 TTS</small></span><input id="vt" type="checkbox" checked></div><div class="row"><span><strong>기억</strong><small>localStorage에만 저장</small></span><span id="mc">0개</span></div><button id="clearMem" class="danger">기억만 초기화</button><button id="clearAll" class="danger">대화·관계 모두 초기화</button></div></div>
+
+<div id="dateModal" class="modal hidden">
+  <div class="box">
+    <button class="close" data-close="dateModal" aria-label="닫기">×</button>
+    <h2>오늘은 어디에서 만날까요?</h2>
+    <div class="choices">
+      <button class="choice" data-scene="cafe"><span>☕</span>카페</button>
+      <button class="choice" data-scene="night"><span>🌃</span>도시 야경</button>
+      <button class="choice" data-scene="walk"><span>🌿</span>공원 산책</button>
+    </div>
+  </div>
+</div>
+
+<div id="settingsModal" class="modal hidden">
+  <div class="box">
+    <button class="close" data-close="settingsModal" aria-label="닫기">×</button>
+    <h2>설정</h2>
+    <div class="row"><span><strong>대화 엔진</strong><small>감정·기억·관계·장면을 반영하는 무료 규칙형 엔진</small></span><span class="badge">Demo AI 2.0</span></div>
+    <div class="row"><span><strong>실사 캐릭터</strong><small>AI로 생성한 가상 성인 캐릭터 이미지</small></span><span>ON</span></div>
+    <div class="row"><span><strong>AI 음성</strong><small>기기의 한국어 TTS 사용</small></span><input id="voiceToggle" type="checkbox" checked></div>
+    <div class="row"><span><strong>기억 저장</strong><small>현재 브라우저 localStorage에만 저장</small></span><span id="settingsMemCount">브라우저</span></div>
+    <button id="clearMemory" class="danger">기억만 초기화</button>
+    <button id="clearAll" class="danger">대화·관계 모두 초기화</button>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
-<script>
-var $=function(s){return document.querySelector(s)}, $$=function(s){return Array.from(document.querySelectorAll(s))};
-var PERSONAS={haeun:{name:'하은',intro:'반가워요. 오늘은 어떤 하루였어요?',tone:'다정하고 차분'},seojun:{name:'서준',intro:'반가워요. 편하게 이야기해요. 오늘 기분은 어때요?',tone:'차분하고 배려 깊음'},yuri:{name:'유리',intro:'드디어 만났네요. 어색한 건 3분만 하기로 해요. 요즘 제일 재밌는 게 뭐예요?',tone:'밝고 재치 있음'}};
-var SCENES={home:{label:'영상통화',ctx:'편안한 영상통화'},cafe:{label:'카페 데이트',ctx:'조용한 카페'},night:{label:'야경 데이트',ctx:'도시 야경'},walk:{label:'산책 데이트',ctx:'공원 산책'}};
-var base={persona:'haeun',user:'친구',score:18,scene:'home',voice:true,memories:[],history:[]},st=Object.assign({},base);
-function save(){localStorage.setItem('dugeunAI-free',JSON.stringify(st))}
-function load(){try{var x=JSON.parse(localStorage.getItem('dugeunAI-free')||'null');if(x)st=Object.assign({},base,x)}catch(e){}}
-function esc(t){return String(t).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
-function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(function(){e.classList.remove('on')},1700)}
-function level(v){return v<25?'첫 만남':v<45?'조금 친해짐':v<70?'설레는 사이':v<90?'많이 가까움':'특별한 사이'}
-function rel(old){var n=level(st.score);$('#level').textContent=n;$('#score').textContent=st.score;$('#fill').style.width=st.score+'%';if(old&&old!==n)toast('관계가 “'+n+'” 단계가 되었어요 ♥')}
-function score(d){var old=level(st.score);st.score=Math.max(0,Math.min(100,st.score+d));rel(old);save()}
-function add(role,text,persist){if(persist===undefined)persist=true;var e=document.createElement('div');e.className='msg '+role;e.innerHTML=esc(text);$('#msgs').appendChild(e);$('#msgs').scrollTop=$('#msgs').scrollHeight;if(persist){st.history.push({role:role,text:text});st.history=st.history.slice(-40);save()}}
-function history(){$('#msgs').innerHTML='';st.history.forEach(function(m){add(m.role,m.text,false)})}
-function memory(x){x=x.trim().replace(/[.!?]+$/,'');if(x&&!st.memories.includes(x)){st.memories.push(x);st.memories=st.memories.slice(-14);renderMem();save();toast('기억했어요 ✨')}}
-function infer(t){var pats=[/나는\s*([^.!?]{1,18})[을를]\s*좋아해/,/내\s*취미는\s*([^.!?]{1,18})/,/요즘\s*([^.!?]{1,18})에\s*관심/,/나는\s*([^.!?]{1,18})에\s*살아/];for(var i=0;i<pats.length;i++){var m=t.match(pats[i]);if(m){memory(m[0]);break}}}
-function renderMem(){var b=$('#mems');b.innerHTML='';$('#mc').textContent=st.memories.length+'개';if(!st.memories.length){b.innerHTML='<span class="empty">취향이나 취미를 말하면 기억해요.</span>';return}st.memories.slice(-6).reverse().forEach(function(x){var e=document.createElement('span');e.className='mem';e.textContent=x;b.appendChild(e)})}
-function reply(t){var n=st.user||'친구',p=PERSONAS[st.persona],m=st.memories.length?st.memories[st.memories.length-1]:'',c=SCENES[st.scene].ctx;if(/안녕|반가/.test(t))return n+'님, 저도 반가워요. '+c+'라서 그런지 조금 더 가까이 있는 느낌이에요.';if(/힘들|우울|짜증|피곤/.test(t))return '오늘 쉽지 않았나 봐요. 해결책부터 말하기보다 지금은 제가 들어드릴게요. 제일 마음에 걸리는 일이 뭐였어요?';if(/사랑|좋아해|보고.?싶/.test(t))return '그 말은 조금 설레는데요. 서두르진 않더라도 지금처럼 자주 이야기하고 싶어요.';if(/취미|뭐.*좋아/.test(t))return '저는 사소한 취향을 알아가는 대화를 좋아해요. '+n+'님은 요즘 시간 가는 줄 모르고 하는 게 있어요?';if(/여행|바다|산|카페/.test(t))return '그 얘기 들으니까 같이 하루를 보내는 장면이 그려져요.'+(m?' 그리고 “'+m+'”도 기억하고 있어요.':'')+' 실제로 간다면 어디부터 가고 싶어요?';if(t.indexOf('?')>=0||/어때|뭐해|왜|어디|언제/.test(t))return '좋은 질문이에요. 저는 '+p.tone+' 쪽이에요. 그런데 '+n+'님 생각도 궁금해요.';var pool=['그 얘기는 조금 더 듣고 싶어요. 그때 가장 먼저 든 생각이 뭐였어요?','생각보다 우리 대화가 잘 이어지네요. '+n+'님을 조금씩 알아가는 느낌이에요.',m?'전에 “'+m+'”라고 했던 것도 기억나요. 오늘 이야기와 이어지는 것 같아요.':'저는 이런 사소한 얘기가 오히려 서로를 더 잘 알게 해주는 것 같아요.','음, 그 느낌 알 것 같아요. 왜 그렇게 느꼈는지 한 가지만 더 이야기해 줄래요?'];return pool[Math.floor(Math.random()*pool.length)]}
-function speak(t){if(!st.voice||!('speechSynthesis'in window))return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='ko-KR';u.rate=.96;var vs=speechSynthesis.getVoices(),v=vs.find(function(x){return /ko-KR/i.test(x.lang)});if(v)u.voice=v;u.onstart=function(){$('#avatar').classList.add('talk')};u.onend=u.onerror=function(){$('#avatar').classList.remove('talk')};speechSynthesis.speak(u)}
-function scene(){var e=$('#stage');e.className='stage'+(st.scene==='home'?'':' '+st.scene);$('#scene').textContent='● '+SCENES[st.scene].label}
-function enter(){st.user=($('#name').value||'친구').trim();save();$('#landing').classList.add('hidden');$('#chat').classList.remove('hidden');$('#pname').textContent=PERSONAS[st.persona].name;scene();rel();renderMem();history();if(!st.history.length){var t=PERSONAS[st.persona].intro;add('ai',t);$('#subtitle').textContent=t}}
-$$('.partner').forEach(function(b){b.onclick=function(){$$('.partner').forEach(function(x){x.classList.remove('sel')});b.classList.add('sel');st.persona=b.dataset.id;save()}});
-$('#start').onclick=enter;
-$('#form').onsubmit=function(e){e.preventDefault();var i=$('#input'),t=i.value.trim();if(!t)return;i.value='';add('user',t);infer(t);score(/고마|좋아|재밌|행복|반가/.test(t)?3:1);setTimeout(function(){var r=reply(t);add('ai',r);$('#subtitle').textContent=r;speak(r)},320)};
-$('#date').onclick=function(){$('#dateModal').classList.remove('hidden')};
-$$('[data-scene]').forEach(function(b){b.onclick=function(){st.scene=b.dataset.scene;scene();save();$('#dateModal').classList.add('hidden');var r=SCENES[st.scene].label+'로 장면을 바꿨어요. 여기서는 어떤 이야기를 해볼까요?';add('ai',r);$('#subtitle').textContent=r;speak(r)}});
-$('#settings').onclick=function(){$('#settingsModal').classList.remove('hidden')};
-$$('[data-x]').forEach(function(b){b.onclick=function(){$('#'+b.dataset.x).classList.add('hidden')}});
-$$('.modal').forEach(function(m){m.onclick=function(e){if(e.target===m)m.classList.add('hidden')}});
-$('#voice').onclick=function(){st.voice=!st.voice;$('#vt').checked=st.voice;$('#vicon').textContent=st.voice?'🔊':'🔇';save();toast(st.voice?'AI 음성을 켰어요':'AI 음성을 껐어요')};
-$('#vt').onchange=function(e){st.voice=e.target.checked;$('#vicon').textContent=st.voice?'🔊':'🔇';save()};
-$('#clearMem').onclick=function(){st.memories=[];renderMem();save();toast('기억을 초기화했어요')};
-$('#clearAll').onclick=function(){localStorage.removeItem('dugeunAI-free');location.reload()};
-$('#mic').onclick=function(){var R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){toast('이 브라우저는 음성 인식을 지원하지 않아요');return}try{var r=new R();r.lang='ko-KR';r.interimResults=false;r.onstart=function(){toast('듣고 있어요…')};r.onresult=function(e){$('#input').value=e.results[0][0].transcript;$('#input').focus()};r.onerror=function(){toast('음성 인식을 사용할 수 없어요')};r.start()}catch(e){toast('마이크를 사용할 수 없어요')}};
-load();$('#name').value=st.user||'친구';$$('.partner').forEach(function(b){b.classList.toggle('sel',b.dataset.id===st.persona)});$('#vt').checked=st.voice;$('#vicon').textContent=st.voice?'🔊':'🔇';if(st.history.length)enter();
-</script>
+<noscript>두근AI는 JavaScript가 필요합니다.</noscript>
+<script src="demo-ai-v2.js?v=2"></script>
+<script src="app-v2.js?v=2"></script>
 </body>
 </html>
