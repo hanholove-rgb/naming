@@ -41,27 +41,27 @@
     if (/슬퍼|우울|속상|울었|눈물|외로/.test(t)) return "sad";
     if (/화나|짜증|열받|싫어 죽겠/.test(t)) return "angry";
     if (/불안|걱정|무서|초조/.test(t)) return "anxious";
-    if (/좋아해|사랑|보고 싶|설레/.test(t)) return "affection";
+    if (/사랑해|보고 싶|설레|(?:너|네가|니가).{0,8}좋아|좋아해.{0,8}(?:너|너를)/.test(t)) return "affection";
     if (/신나|기뻐|행복|재밌|좋은 일/.test(t)) return "happy";
-    if (/기대|두근|흥분|드디어/.test(t)) return "excited";
-    return "neutral";
-  }
-
-  function extractMemories(text) {
+    if (/기대|두근|흥분|드디어/.test(t)) return "ex  function extractMemories(text) {
     const out = [];
     const rules = [
-      { re: /(?:나는|난)s+(.{1,24}?)s*(?:을|를)?s*좋아해(?:요)?/i, type: "PREFERENCE", imp: .78, fmt: x => x + "을(를) 좋아함" },
-      { re: /(?:내s*)?취미(?:는|가)s+(.{1,28}?)(?:이야|예요|입니다|야|요|$)/i, type: "HOBBY", imp: .82, fmt: x => "취미는 " + x },
-      { re: /요즘s+(.{1,28}?)에s+관심(?:이s*)?(?:있어|있어요|많아)/i, type: "INTEREST", imp: .72, fmt: x => x + "에 관심이 있음" },
-      { re: /(?:나는|난)s+(.{1,24}?)에s+살아/i, type: "PROFILE", imp: .72, fmt: x => x + "에 거주한다고 말함" },
-      { re: /(?:내s*)?생일(?:은|이)s+(.{1,20}?)(?:이야|예요|입니다|야|요|$)/i, type: "PROFILE", imp: .95, fmt: x => "생일은 " + x },
-      { re: /(?:커피보다|차라리)s+(.{1,20}?)s*(?:가|이)?s*(?:더s*)?좋아/i, type: "PREFERENCE", imp: .8, fmt: x => x + "을(를) 더 선호함" }
+      { re: /(?:나는|난)\s+(.{1,24}?)(?:을|를)\s*좋아해(?:요)?/i, type: "PREFERENCE", imp: .78, fmt: x => x + "을(를) 좋아함" },
+      { re: /(?:내\s*)?취미(?:는|가)\s+(.{1,28}?)(?:이야|예요|입니다|야|요|$)/i, type: "HOBBY", imp: .82, fmt: x => "취미는 " + x },
+      { re: /요즘\s+(.{1,28}?)에\s+관심(?:이\s*)?(?:있어|있어요|많아)/i, type: "INTEREST", imp: .72, fmt: x => x + "에 관심이 있음" },
+      { re: /(?:나는|난)\s+(.{1,24}?)에\s+살아/i, type: "PROFILE", imp: .72, fmt: x => x + "에 거주한다고 말함" },
+      { re: /(?:내\s*)?생일(?:은|이)\s+(.{1,20}?)(?:이야|예요|입니다|야|요|$)/i, type: "PROFILE", imp: .95, fmt: x => "생일은 " + x },
+      { re: /(?:커피보다|차라리)\s+(.{1,20}?)\s*(?:가|이)?\s*(?:더\s*)?좋아/i, type: "PREFERENCE", imp: .8, fmt: x => x + "을(를) 더 선호함" }
     ];
     for (const r of rules) {
       const m = text.match(r.re);
       if (m && m[1]) out.push({ type: r.type, content: r.fmt(m[1].trim()), importance: r.imp });
     }
-    if (/요즘.*(?:피곤|지쳐|힘들)/.test(text)) out.push({type:"EMOTION", content:"최근 피곤하거나 힘든 시기를 보내고 있음", importance:.62});
+    if (/요즘.*(?:피곤|지쳐|힘들)/.test(text)) {
+      out.push({type:"EMOTION", content:"최근 피곤하거나 힘든 시기를 보내고 있음", importance:.62});
+    }
+    return out;
+  }portance:.62});
     return out;
   }
 
