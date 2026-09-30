@@ -109,6 +109,8 @@
   }
   function renderMemories(){
     $("#memCount").textContent=state.memories.length+"개";
+    const settingsCount=$("#settingsMemCount");
+    if(settingsCount) settingsCount.textContent=state.memories.length+"개";
     $("#memories").innerHTML="";
     if(!state.memories.length){
       $("#memories").innerHTML='<span class="empty">취향·취미·관심사를 말하면 기억해요.</span>';
