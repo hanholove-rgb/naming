@@ -10,6 +10,79 @@
   let state = { ...DEFAULT };
   let currentEmotion = "neutral";
 
+  const LipSync = (() => {
+    let timer = null;
+    let currentPersona = "haeun";
+
+    const sequences = {
+      neutral:["closed","small","mid","small"],
+      smile:["closed","small","mid","small"],
+      happy:["small","mid","open","mid","small"],
+      shy:["closed","small","closed","small"],
+      concern:["closed","small","mid","small"],
+      serious:["closed","small","mid","closed"],
+      thinking:["closed","small","closed","mid"],
+      surprised:["round","open","round","small"]
+    };
+
+    const wrap = () => $("#portraitWrap");
+    const layer = () => $("#mouthLayer");
+    const mouth = () => $("#mouthShape");
+
+    function setPersona(personaId){
+      currentPersona = personaId || "haeun";
+      const w = wrap();
+      if(!w) return;
+      w.classList.remove("persona-haeun","persona-seojun","persona-yuri");
+      w.classList.add("persona-" + currentPersona);
+    }
+
+    function setFrame(frame){
+      const el = mouth();
+      if(!el) return;
+      el.className = "mouth-shape m-" + frame;
+    }
+
+    function stop(){
+      if(timer){
+        clearInterval(timer);
+        timer = null;
+      }
+      setFrame("closed");
+      const l = layer();
+      const w = wrap();
+      if(l) l.classList.add("lip-hidden");
+      if(w) w.classList.remove("speaking");
+    }
+
+    function start({personaId=currentPersona,emotion="neutral"}={}){
+      stop();
+      setPersona(personaId);
+      const seq = sequences[emotion] || sequences.neutral;
+      let step = 0;
+      const l = layer();
+      const w = wrap();
+      if(l) l.classList.remove("lip-hidden");
+      if(w) w.classList.add("speaking");
+
+      const tick = () => {
+        setFrame(seq[step % seq.length]);
+        step++;
+        if(Math.random() < .10){
+          setTimeout(() => {
+            if(timer) setFrame("closed");
+          }, 42);
+        }
+      };
+
+      tick();
+      timer = setInterval(tick, 95);
+    }
+
+    return {start,stop,setPersona};
+  })();
+
+
   const PORTRAITS = {
     haeun: "assets/v3/haeun-neutral.avif?v=stable7",
     seojun: "assets/v3/seojun-neutral.avif?v=stable7",
@@ -204,23 +277,37 @@
     const p = window.DugeunAI && DugeunAI.PERSONAS ? DugeunAI.PERSONAS[state.personaId] : null;
     if($("#partnerName")) $("#partnerName").textContent = p ? p.name : state.personaId;
     setMainPortrait(state.personaId);
+    LipSync.setPersona(state.personaId);
     setEmotion("neutral");
   }
 
   function speak(text){
-    if(!state.voice) return;
+    if(!state.voice){
+      LipSync.stop();
+      return;
+    }
+
+    const lipStart = () => {
+      LipSync.start({
+        personaId:state.personaId,
+        emotion:currentEmotion
+      });
+    };
+    const lipStop = () => LipSync.stop();
+
     if(window.DugeunVoice && typeof DugeunVoice.speak === "function"){
       DugeunVoice.speak(text,{
         personaId:state.personaId,
         emotion:currentEmotion,
-        onStart:()=>$("#portraitWrap") && $("#portraitWrap").classList.add("speaking"),
-        onEnd:()=>$("#portraitWrap") && $("#portraitWrap").classList.remove("speaking")
+        onStart:lipStart,
+        onEnd:lipStop
       });
       if($("#voiceName") && typeof DugeunVoice.getVoiceName === "function"){
         $("#voiceName").textContent = DugeunVoice.getVoiceName();
       }
       return;
     }
+
     if(!("speechSynthesis" in window)) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -229,6 +316,9 @@
     u.pitch = state.personaId === "seojun" ? .95 : state.personaId === "yuri" ? 1.08 : 1.04;
     const ko = speechSynthesis.getVoices().find(v => /^ko/i.test(v.lang));
     if(ko) u.voice = ko;
+    u.onstart = lipStart;
+    u.onend = lipStop;
+    u.onerror = lipStop;
     speechSynthesis.speak(u);
   }
 
@@ -343,6 +433,7 @@
     prepareImage(hero);
     hero.src = PORTRAITS[state.personaId] || FALLBACK_PORTRAIT;
   }
+  LipSync.setPersona(state.personaId);
   if($("#userName")) $("#userName").value = state.userName || "친구";
 
   $$(".partner").forEach(btn => {
@@ -399,6 +490,7 @@
     if($("#voiceToggle")) $("#voiceToggle").checked = state.voice;
     if($("#voiceIcon")) $("#voiceIcon").textContent = state.voice ? "🔊" : "🔇";
     if(!state.voice){
+      LipSync.stop();
       if(window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
       else if("speechSynthesis" in window) speechSynthesis.cancel();
     }
@@ -409,7 +501,11 @@
     state.voice = e.target.checked;
     save();
     if($("#voiceIcon")) $("#voiceIcon").textContent = state.voice ? "🔊" : "🔇";
-    if(!state.voice && window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
+    if(!state.voice){
+      LipSync.stop();
+      if(window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
+      else if("speechSynthesis" in window) speechSynthesis.cancel();
+    }
   };
 
   if($("#clearMemory")) $("#clearMemory").onclick = () => {
@@ -420,6 +516,7 @@
   };
 
   if($("#clearAll")) $("#clearAll").onclick = () => {
+    LipSync.stop();
     if(window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
     localStorage.removeItem(STORAGE);
     location.reload();
