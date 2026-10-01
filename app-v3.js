@@ -39,88 +39,21 @@
     return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
   }
 
-  const ASSET_VERSION = "4";
-  const assetCache = { neutral:{}, expressions:{} };
-  const v4B64 = {
-    neutral: {
-      haeun: "assets/v4/haeun-neutral.b64",
-      seojun: "assets/v4safe/seojun-neutral.b64",
-      yuri: "assets/v4/yuri-neutral.b64"
-    },
-    expressions: {
-      haeun: "assets/v4/haeun-expressions.b64",
-      seojun: "assets/v4/seojun-expressions.b64",
-      yuri: null
-    }
-  };
-  const expressionIndex = {
-    haeun: { neutral:0, smile:1, happy:2, shy:3, concern:4, serious:5, thinking:5, surprised:2 },
-    seojun:{ neutral:0, smile:1, happy:2, shy:1, concern:4, serious:5, thinking:3, surprised:3 },
-    yuri:  { neutral:0, smile:1, happy:2, shy:3, concern:5, serious:5, thinking:5, surprised:4 }
-  };
-  const spritePositions = [
-    ["0%","0%"], ["50%","0%"], ["100%","0%"],
-    ["0%","100%"], ["50%","100%"], ["100%","100%"]
-  ];
-
-  function fallbackNeutral(id){
-    return "assets/v3/"+id+"-neutral.webp?v=3";
-  }
-  function fallbackExpression(id){
-    return "assets/v3/"+id+"-expressions.webp?v=3";
-  }
+  const ASSET_VERSION = "stable5";
   function neutralUrl(id){
-    return assetCache.neutral[id] || fallbackNeutral(id);
-  }
-  function expressionUrl(id){
-    return assetCache.expressions[id] || fallbackExpression(id);
-  }
-  function normalizeBase64(s){
-    s=String(s||"").replace(/\s+/g,"");
-    const pad=(4-(s.length%4))%4;
-    return s+"=".repeat(pad);
-  }
-  function verifyImage(src){
-    return new Promise((resolve,reject)=>{
-      const img=new Image();
-      const timer=setTimeout(()=>reject(new Error("image timeout")),4000);
-      img.onload=()=>{clearTimeout(timer); resolve(src);};
-      img.onerror=()=>{clearTimeout(timer); reject(new Error("invalid image"));};
-      img.src=src;
-    });
-  }
-  async function loadB64Asset(path){
-    const res=await fetch(path+"?v="+ASSET_VERSION,{cache:"no-store"});
-    if(!res.ok) throw new Error(path+" "+res.status);
-    const b64=normalizeBase64(await res.text());
-    if(b64.length<1000) throw new Error("asset too small");
-    return verifyImage("data:image/avif;base64,"+b64);
+    return "assets/v3/"+id+"-neutral.webp?v=stable5";
   }
   async function loadAllPortraits(){
     const ids=["haeun","seojun","yuri"];
-    await Promise.all(ids.map(async id=>{
-      try{
-        assetCache.neutral[id]=await loadB64Asset(v4B64.neutral[id]);
-      }catch(e){
-        console.warn("V4 neutral fallback",id,e);
-        assetCache.neutral[id]=fallbackNeutral(id);
-      }
-      try{
-        if(!v4B64.expressions[id]) throw new Error("no V4 expression asset");
-        assetCache.expressions[id]=await loadB64Asset(v4B64.expressions[id]);
-      }catch(e){
-        console.warn("V4 expression fallback",id,e);
-        assetCache.expressions[id]=fallbackExpression(id);
-      }
+    ids.forEach(id=>{
       const src=neutralUrl(id);
       document.querySelectorAll('[data-photo="'+id+'"]').forEach(img=>{
         img.src=src;
         img.decoding="async";
+        img.onerror=()=>{ img.style.visibility="hidden"; };
       });
-    }));
+    });
     $("#heroPortrait").src=neutralUrl(state.personaId);
-    const overlay=$("#heroExpression");
-    if(overlay) overlay.style.backgroundImage='url("'+expressionUrl(state.personaId)+'")';
   }
 
   function relationLevel(){ return DugeunAI.relationshipLevel(state.score); }
@@ -196,20 +129,8 @@
   function setEmotion(em){
     currentEmotion=em||"neutral";
     const img=$("#heroPortrait");
-    const overlay=$("#heroExpression");
-    img.className="hero-portrait emotion-"+currentEmotion;
+    if(img) img.className="hero-portrait emotion-"+currentEmotion;
     $("#emotionChip").textContent=(emotionEmoji[currentEmotion]||"🙂")+" "+(emotionLabel[currentEmotion]||"편안함");
-
-    if(!overlay) return;
-    overlay.style.backgroundImage='url("'+expressionUrl(state.personaId)+'")';
-    if(currentEmotion==="neutral"){
-      overlay.classList.remove("active");
-      return;
-    }
-    const idx=(expressionIndex[state.personaId]||expressionIndex.haeun)[currentEmotion] ?? 0;
-    const pos=spritePositions[idx]||spritePositions[0];
-    overlay.style.backgroundPosition=pos[0]+" "+pos[1];
-    overlay.classList.add("active");
   }
   function setScene(){
     const s=DugeunAI.SCENES[state.scene]||DugeunAI.SCENES.home;
@@ -220,8 +141,6 @@
     const p=DugeunAI.PERSONAS[state.personaId];
     $("#partnerName").textContent=p.name;
     $("#heroPortrait").src=neutralUrl(state.personaId);
-    const overlay=$("#heroExpression");
-    if(overlay) overlay.style.backgroundImage='url("'+expressionUrl(state.personaId)+'")';
     setEmotion("neutral");
   }
 
