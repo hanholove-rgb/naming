@@ -16,54 +16,69 @@
     let currentEmotion = "neutral";
     let resizeBound = false;
 
-    // Coordinates are normalized to the original portrait.
-    // They are mapped to the visible image on every resize.
     const anchors = {
-      haeun:{x:.492,y:.371,scale:1.00},
-      seojun:{x:.462,y:.365,scale:.98},
-      yuri:{x:.486,y:.360,scale:.98}
+      haeun:{x:.492,y:.371,rx:.040,ry:.018,scale:1.00},
+      seojun:{x:.462,y:.365,rx:.038,ry:.017,scale:.98},
+      yuri:{x:.486,y:.360,rx:.040,ry:.018,scale:.98}
     };
 
     const sequences = {
-      neutral:["closed","small","mid","small"],
-      smile:["closed","small","mid","small"],
+      neutral:["rest","small","mid","small"],
+      smile:["rest","small","mid","small"],
       happy:["small","mid","open","mid","small"],
-      shy:["closed","small","closed","small"],
-      concern:["closed","small","mid","small"],
-      serious:["closed","small","mid","closed"],
-      thinking:["closed","small","closed","mid"],
+      shy:["rest","small","rest","small"],
+      concern:["rest","small","mid","small"],
+      serious:["rest","small","mid","rest"],
+      thinking:["rest","small","rest","mid"],
       surprised:["round","open","round","small"]
     };
 
-    const wrap = () => $("#portraitWrap");
-    const layer = () => $("#mouthLayer");
-    const mouth = () => $("#mouthShape");
-    const portrait = () => $("#heroPortrait");
+    const wrap=()=>$("#portraitWrap");
+    const layer=()=>$("#mouthLayer");
+    const photo=()=>$("#mouthPhoto");
+    const portrait=()=>$("#heroPortrait");
+
+    function syncPhoto(){
+      const p=portrait(), mp=photo();
+      if(!p||!mp) return;
+      const src=p.currentSrc||p.src;
+      if(src && mp.src!==src) mp.src=src;
+    }
 
     function updatePosition(){
-      const w=wrap(), l=layer(), img=portrait();
-      if(!w || !l || !img || !img.naturalWidth || !img.naturalHeight) return;
+      const w=wrap(), l=layer(), mp=photo(), img=portrait();
+      if(!w||!l||!mp||!img||!img.naturalWidth||!img.naturalHeight) return;
+
+      syncPhoto();
 
       const box=w.getBoundingClientRect();
       const nw=img.naturalWidth, nh=img.naturalHeight;
-      const scale=Math.min(box.width/nw,box.height/nh); // object-fit: contain
-      const rw=nw*scale, rh=nh*scale;
+      const fit=Math.min(box.width/nw,box.height/nh);
+      const rw=nw*fit, rh=nh*fit;
       const ox=(box.width-rw)/2;
       const oy=(box.height-rh)/2;
-      const an=anchors[currentPersona] || anchors.haeun;
+      const an=anchors[currentPersona]||anchors.haeun;
 
-      l.style.left=(ox+rw*an.x)+"px";
-      l.style.top=(oy+rh*an.y)+"px";
-      l.style.setProperty("--lip-scale",Math.max(.72,Math.min(1.35,(rw/900)*an.scale)));
+      const cx=ox+rw*an.x;
+      const cy=oy+rh*an.y;
+      const rx=Math.max(14,rw*an.rx);
+      const ry=Math.max(8,rh*an.ry);
+
+      mp.style.clipPath=`ellipse(${rx}px ${ry}px at ${cx}px ${cy}px)`;
+      mp.style.webkitClipPath=mp.style.clipPath;
+      mp.style.transformOrigin=`${cx}px ${cy}px`;
+      mp.style.objectFit="contain";
+      mp.style.objectPosition="center center";
     }
 
     function setPersona(personaId){
-      currentPersona=personaId || "haeun";
+      currentPersona=personaId||"haeun";
       const w=wrap();
       if(w){
         w.classList.remove("persona-haeun","persona-seojun","persona-yuri");
         w.classList.add("persona-"+currentPersona);
       }
+      syncPhoto();
       requestAnimationFrame(updatePosition);
       if(!resizeBound){
         resizeBound=true;
@@ -72,39 +87,42 @@
     }
 
     function setFrame(frame){
-      const el=mouth();
-      if(el) el.className="mouth-shape m-"+frame;
+      const mp=photo();
+      if(!mp) return;
+      mp.className="mouth-photo mouth-"+frame;
     }
 
     function stop(){
-      if(timer){ clearInterval(timer); timer=null; }
-      setFrame("closed");
-      const l=layer(), w=wrap();
+      if(timer){clearInterval(timer);timer=null;}
+      setFrame("rest");
+      const l=layer(),w=wrap();
       if(l) l.classList.add("lip-hidden");
       if(w) w.classList.remove("speaking");
     }
 
     function start({personaId=currentPersona,emotion=currentEmotion}={}){
       stop();
-      currentEmotion=emotion || "neutral";
+      currentEmotion=emotion||"neutral";
       setPersona(personaId);
       updatePosition();
-      const seq=sequences[currentEmotion] || sequences.neutral;
-      const l=layer(), w=wrap();
+
+      const seq=sequences[currentEmotion]||sequences.neutral;
+      const l=layer(),w=wrap();
       if(l) l.classList.remove("lip-hidden");
       if(w) w.classList.add("speaking");
+
       let step=0;
       const tick=()=>{
-        setFrame(seq[step++ % seq.length]);
-        if(Math.random()<.12){
-          setTimeout(()=>{ if(timer) setFrame("closed"); },45);
+        setFrame(seq[step++%seq.length]);
+        if(Math.random()<.10){
+          setTimeout(()=>{if(timer)setFrame("rest");},50);
         }
       };
       tick();
-      timer=setInterval(tick,105);
+      timer=setInterval(tick,115);
     }
 
-    return {start,stop,setPersona,updatePosition};
+    return {start,stop,setPersona,updatePosition,syncPhoto};
   })();
 
   const PORTRAITS = {
@@ -196,6 +214,7 @@
     img.dataset.failed = "0";
     prepareImage(img);
     img.src = src;
+    LipSync.syncPhoto();
   }
 
   function relationLevel(){
