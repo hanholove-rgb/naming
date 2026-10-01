@@ -21,54 +21,49 @@
 
 
 
-/* Lip motion v2 — source-coordinate tracking + upper-body portrait */
+
+/* Lip motion v3 — animate the actual photographed lips */
 .portrait-wrap{position:absolute;inset:0;overflow:hidden}
-.portrait-wrap:before{
-  content:"";position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.045),transparent 42%);
-  pointer-events:none
-}
 .mouth-layer{
-  --lip-scale:1;
   position:absolute;
-  width:64px;height:42px;
-  z-index:9;
-  display:flex;align-items:center;justify-content:center;
-  transform:translate(-50%,-50%) scale(var(--lip-scale));
-  transform-origin:center;
+  inset:0;
+  z-index:8;
   pointer-events:none;
   opacity:1;
-  transition:opacity .08s linear;
+  overflow:hidden;
 }
 .mouth-layer.lip-hidden{opacity:0}
-.mouth-shape{
-  position:relative;box-sizing:border-box;transform-origin:center;
-  transition:width .045s linear,height .045s linear,border-radius .045s linear,background .045s linear;
-  filter:drop-shadow(0 1px 1px rgba(0,0,0,.3));
+.mouth-photo{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center center;
+  will-change:transform,clip-path;
+  backface-visibility:hidden;
+  transition:transform .055s linear,filter .055s linear;
 }
-.mouth-shape.m-closed{
-  width:31px;height:9px;border:0;border-bottom:4px solid rgba(151,54,75,.96);
-  border-radius:0 0 20px 20px;background:rgba(255,170,184,.12)
+.mouth-photo.mouth-rest{
+  transform:scaleX(1) scaleY(1);
+  filter:none;
 }
-.mouth-shape.m-small{
-  width:24px;height:14px;border:3px solid rgba(151,54,75,.96);
-  border-top-width:2px;border-radius:50%;background:rgba(75,15,29,.72)
+.mouth-photo.mouth-small{
+  transform:scaleX(.995) scaleY(1.035);
+  filter:brightness(.995);
 }
-.mouth-shape.m-mid{
-  width:27px;height:20px;border:3px solid rgba(151,54,75,.98);
-  border-top-width:2px;border-radius:48% 48% 58% 58%;background:rgba(65,10,24,.82)
+.mouth-photo.mouth-mid{
+  transform:scaleX(.99) scaleY(1.075);
+  filter:brightness(.99) contrast(1.01);
 }
-.mouth-shape.m-open{
-  width:25px;height:28px;border:3px solid rgba(151,54,75,.98);
-  border-top-width:2px;border-radius:45% 45% 60% 60%;background:rgba(45,4,15,.9)
+.mouth-photo.mouth-open{
+  transform:scaleX(.975) scaleY(1.13);
+  filter:brightness(.975) contrast(1.025);
 }
-.mouth-shape.m-round{
-  width:20px;height:25px;border:3px solid rgba(151,54,75,.98);
-  border-radius:50%;background:rgba(48,5,17,.88)
+.mouth-photo.mouth-round{
+  transform:scaleX(.955) scaleY(1.10);
+  filter:brightness(.985) contrast(1.015);
 }
-.mouth-shape.m-mid:after,.mouth-shape.m-open:after{
-  content:"";position:absolute;left:50%;bottom:2px;transform:translateX(-50%);
-  width:11px;height:6px;border-radius:50%;background:rgba(239,135,159,.72)
+.portrait-wrap.speaking .hero-portrait{
+  transform:scale(1.003);
 }
-.portrait-wrap.speaking .hero-portrait{transform:scale(1.004)}
-.partner-photo{object-fit:cover}
