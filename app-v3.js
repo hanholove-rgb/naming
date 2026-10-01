@@ -11,9 +11,9 @@
   let currentEmotion = "neutral";
 
   const PORTRAITS = {
-    haeun: "assets/v3/haeun-neutral.webp?v=stable6",
-    seojun: "assets/v3/seojun-neutral.webp?v=stable6",
-    yuri: "assets/v3/yuri-neutral.webp?v=stable6"
+    haeun: "assets/v3/haeun-neutral.avif?v=stable7",
+    seojun: "assets/v3/seojun-neutral.avif?v=stable7",
+    yuri: "assets/v3/yuri-neutral.avif?v=stable7"
   };
   const FALLBACK_PORTRAIT = PORTRAITS.haeun;
 
@@ -73,7 +73,7 @@
         return;
       }
       img.dataset.failed = "1";
-      if(!img.src.includes("haeun-neutral.webp")){
+      if(!img.src.includes("haeun-neutral.avif")){
         img.src = FALLBACK_PORTRAIT;
       }else{
         img.style.visibility = "hidden";
