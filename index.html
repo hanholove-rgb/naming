@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b0911">
 <meta name="description" content="두근AI — 실사풍 AI 동반자 데모">
 <title>두근AI — 실사풍 AI 동반자</title>
-<link rel="stylesheet" href="styles-v3.css?v=stable7">
+<link rel="stylesheet" href="styles-v3.css?v=lip1">
 </head>
 <body>
 <header class="top">
@@ -47,6 +47,9 @@
     <div class="stage-bg"></div>
     <div id="portraitWrap" class="portrait-wrap">
       <img id="heroPortrait" class="hero-portrait emotion-neutral" src="assets/v3/haeun-neutral.avif?v=stable7" alt="선택한 AI 캐릭터">
+      <div id="mouthLayer" class="mouth-layer lip-hidden" aria-hidden="true">
+        <div id="mouthShape" class="mouth-shape m-closed"></div>
+      </div>
     </div>
     <div id="sceneChip" class="scene-chip">● 영상통화</div>
     <div class="identity"><strong id="partnerName">하은</strong><small>AI 캐릭터 · 온라인</small></div>
@@ -112,6 +115,6 @@
 <noscript>두근AI는 JavaScript가 필요합니다.</noscript>
 <script src="demo-ai-v2.js?v=stable7"></script>
 <script src="voice-provider-v3.js?v=stable7"></script>
-<script src="app-v3.js?v=stable7"></script>
+<script src="app-v3.js?v=lip1"></script>
 </body>
 </html>
