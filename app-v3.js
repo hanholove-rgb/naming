@@ -136,6 +136,209 @@
     return {start,stop,setPersona,updatePosition,syncPhoto};
   })();
 
+  const VoiceChat = (() => {
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let active = false;
+    let listening = false;
+    let waitingForAI = false;
+    let restartTimer = null;
+    let finalHandled = false;
+
+    const mic = () => $("#mic");
+    const status = () => $("#voiceChatStatus");
+
+    function supported(){
+      return !!Recognition;
+    }
+
+    function render(){
+      const btn=mic();
+      if(btn){
+        btn.classList.toggle("voice-active",active);
+        btn.classList.toggle("listening",listening);
+        btn.setAttribute("aria-pressed",active ? "true" : "false");
+        btn.innerHTML = listening
+          ? '<b>🔴</b>듣는 중'
+          : active
+            ? '<b>🎙</b>음성 대화'
+            : '<b>🎙</b>음성 대화';
+      }
+      const s=status();
+      if(s){
+        s.textContent = !supported()
+          ? "이 브라우저는 음성 인식을 지원하지 않습니다."
+          : listening
+            ? "말씀하세요. 말이 끝나면 자동으로 전송됩니다."
+            : active && waitingForAI
+              ? "AI가 답변 중입니다."
+              : active
+                ? "음성 대화가 켜져 있습니다."
+                : "마이크를 누르면 연속 음성 대화를 시작합니다.";
+        s.classList.toggle("on",active);
+        s.classList.toggle("is-listening",listening);
+      }
+    }
+
+    function clearRestart(){
+      if(restartTimer){
+        clearTimeout(restartTimer);
+        restartTimer=null;
+      }
+    }
+
+    function stopRecognition(){
+      clearRestart();
+      if(recognition){
+        try{ recognition.abort(); }catch(e){}
+      }
+      recognition=null;
+      listening=false;
+      render();
+    }
+
+    function scheduleListen(delay=420){
+      clearRestart();
+      if(!active || waitingForAI || listening || !supported()) return;
+      restartTimer=setTimeout(()=>startListening(),delay);
+    }
+
+    function startListening(){
+      clearRestart();
+      if(!active || waitingForAI || listening || !supported()) return;
+
+      finalHandled=false;
+      const r=new Recognition();
+      recognition=r;
+      r.lang="ko-KR";
+      r.continuous=false;
+      r.interimResults=true;
+      r.maxAlternatives=1;
+
+      r.onstart=()=>{
+        listening=true;
+        render();
+      };
+
+      r.onresult=e=>{
+        let interim="";
+        let finalText="";
+        for(let i=e.resultIndex;i<e.results.length;i++){
+          const t=(e.results[i][0]?.transcript||"").trim();
+          if(e.results[i].isFinal) finalText += (finalText ? " " : "") + t;
+          else interim += (interim ? " " : "") + t;
+        }
+
+        if(interim && $("#subtitle")){
+          $("#subtitle").textContent="🎙 "+interim;
+        }
+
+        if(finalText && !finalHandled){
+          finalHandled=true;
+          waitingForAI=true;
+          render();
+          try{ r.stop(); }catch(e){}
+          handleVoiceTranscript(finalText.trim());
+        }
+      };
+
+      r.onerror=e=>{
+        listening=false;
+        recognition=null;
+
+        if(e.error==="not-allowed" || e.error==="service-not-allowed"){
+          active=false;
+          waitingForAI=false;
+          toast("마이크 권한을 허용해 주세요.");
+        }else if(e.error!=="aborted" && e.error!=="no-speech"){
+          toast("음성 인식을 다시 시도할게요.");
+        }
+
+        render();
+        if(active && !waitingForAI) scheduleListen(e.error==="no-speech" ? 250 : 650);
+      };
+
+      r.onend=()=>{
+        listening=false;
+        recognition=null;
+        render();
+        if(active && !waitingForAI && !finalHandled) scheduleListen(350);
+      };
+
+      try{
+        r.start();
+      }catch(e){
+        console.warn("음성 인식 시작 오류",e);
+        listening=false;
+        recognition=null;
+        render();
+        scheduleListen(800);
+      }
+    }
+
+    function start(){
+      if(!supported()){
+        toast("이 브라우저에서는 음성 인식을 지원하지 않습니다.");
+        render();
+        return;
+      }
+      active=true;
+      waitingForAI=false;
+
+      // Voice conversation always enables AI voice.
+      state.voice=true;
+      if($("#voiceToggle")) $("#voiceToggle").checked=true;
+      if($("#voiceIcon")) $("#voiceIcon").textContent="🔊";
+      save();
+
+      render();
+      toast("음성 대화를 시작합니다.");
+      scheduleListen(120);
+    }
+
+    function stop(){
+      active=false;
+      waitingForAI=false;
+      stopRecognition();
+      render();
+    }
+
+    function toggle(){
+      if(active) stop();
+      else start();
+    }
+
+    function pauseForAI(){
+      if(!active) return;
+      waitingForAI=true;
+      stopRecognition();
+      render();
+    }
+
+    function resumeAfterAI(){
+      if(!active) return;
+      waitingForAI=false;
+      render();
+      scheduleListen(500);
+    }
+
+    function init(){
+      const btn=mic();
+      if(!btn) return;
+
+      if(!supported()){
+        btn.classList.add("unsupported");
+        btn.title="Chrome 또는 Edge 등 음성 인식을 지원하는 브라우저에서 사용할 수 있습니다.";
+      }
+      btn.onclick=toggle;
+      render();
+    }
+
+    function isActive(){ return active; }
+
+    return {init,start,stop,toggle,pauseForAI,resumeAfterAI,isActive};
+  })();
+
   const PORTRAITS = {
     haeun: "assets/v8/haeun-upper.avif?v=portrait9",
     seojun: "assets/v8/seojun-upper.avif?v=portrait9",
@@ -339,27 +542,38 @@
   function speak(text){
     if(!state.voice){
       LipSync.stop();
+      VoiceChat.resumeAfterAI();
       return;
     }
 
-    // Start immediately. Some browsers delay or omit SpeechSynthesis onstart.
+    VoiceChat.pauseForAI();
+
+    // Start lip motion immediately because some browsers delay SpeechSynthesis.onstart.
     LipSync.start({personaId:state.personaId,emotion:currentEmotion});
-    const lipStop=()=>LipSync.stop();
+
+    let ended=false;
+    const speechDone=()=>{
+      if(ended) return;
+      ended=true;
+      LipSync.stop();
+      VoiceChat.resumeAfterAI();
+    };
 
     if(window.DugeunVoice && typeof DugeunVoice.speak==="function"){
-      DugeunVoice.speak(text,{
+      const p=DugeunVoice.speak(text,{
         personaId:state.personaId,
         emotion:currentEmotion,
         onStart:()=>LipSync.start({personaId:state.personaId,emotion:currentEmotion}),
-        onEnd:lipStop
-      }).catch?.(lipStop);
+        onEnd:speechDone
+      });
+      if(p && typeof p.catch==="function") p.catch(speechDone);
       if($("#voiceName") && typeof DugeunVoice.getVoiceName==="function"){
         $("#voiceName").textContent=DugeunVoice.getVoiceName();
       }
       return;
     }
 
-    if(!("speechSynthesis" in window)){ lipStop(); return; }
+    if(!("speechSynthesis" in window)){ speechDone(); return; }
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
     u.lang="ko-KR";
@@ -368,8 +582,8 @@
     const ko=speechSynthesis.getVoices().find(v=>/^ko/i.test(v.lang));
     if(ko) u.voice=ko;
     u.onstart=()=>LipSync.start({personaId:state.personaId,emotion:currentEmotion});
-    u.onend=lipStop;
-    u.onerror=lipStop;
+    u.onend=speechDone;
+    u.onerror=speechDone;
     speechSynthesis.speak(u);
   }
 
@@ -385,6 +599,19 @@
       lastReply:state.lastReply,
       message
     };
+  }
+
+  function handleVoiceTranscript(text){
+    const message=String(text||"").trim();
+    if(!message){
+      VoiceChat.resumeAfterAI();
+      return;
+    }
+    VoiceChat.pauseForAI();
+    addMessage("user",message);
+    setEmotion("thinking");
+    if($("#subtitle")) $("#subtitle").textContent='🎙 "'+message+'"';
+    respond(message);
   }
 
   function respond(message){
@@ -444,37 +671,7 @@
     }
   }
 
-  function initSpeech(){
-    const R = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const mic = $("#mic");
-    if(!mic) return;
-    if(!R){
-      mic.classList.add("unsupported");
-      mic.title = "이 브라우저에서는 음성 인식을 지원하지 않습니다.";
-      return;
-    }
-    mic.onclick = () => {
-      try{
-        const r = new R();
-        r.lang = "ko-KR";
-        r.interimResults = false;
-        r.maxAlternatives = 1;
-        r.onstart = () => toast("듣고 있어요…");
-        r.onresult = e => {
-          const input = $("#messageInput");
-          if(input){
-            input.value = e.results[0][0].transcript;
-            input.focus();
-          }
-        };
-        r.onerror = () => toast("음성 인식을 사용할 수 없어요.");
-        r.start();
-      }catch(e){
-        console.warn("음성 입력 오류:", e);
-        toast("마이크를 사용할 수 없어요.");
-      }
-    };
-  }
+
 
   loadState();
   loadPartnerPortraits();
@@ -506,6 +703,7 @@
     const text = input.value.trim();
     if(!text) return;
     input.value = "";
+    VoiceChat.pauseForAI();
     addMessage("user",text);
     setEmotion("thinking");
     if($("#subtitle")) $("#subtitle").textContent = "생각 중…";
@@ -541,6 +739,7 @@
     if($("#voiceToggle")) $("#voiceToggle").checked = state.voice;
     if($("#voiceIcon")) $("#voiceIcon").textContent = state.voice ? "🔊" : "🔇";
     if(!state.voice){
+      VoiceChat.stop();
       LipSync.stop();
       if(window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
       else if("speechSynthesis" in window) speechSynthesis.cancel();
@@ -553,6 +752,7 @@
     save();
     if($("#voiceIcon")) $("#voiceIcon").textContent = state.voice ? "🔊" : "🔇";
     if(!state.voice){
+      VoiceChat.stop();
       LipSync.stop();
       if(window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
       else if("speechSynthesis" in window) speechSynthesis.cancel();
@@ -567,13 +767,13 @@
   };
 
   if($("#clearAll")) $("#clearAll").onclick = () => {
+    VoiceChat.stop();
     LipSync.stop();
     if(window.DugeunVoice && typeof DugeunVoice.stop === "function") DugeunVoice.stop();
     localStorage.removeItem(STORAGE);
     location.reload();
   };
-
-  initSpeech();
+  VoiceChat.init();
   if(window.DugeunVoice){
     if(typeof DugeunVoice.refreshVoices === "function") DugeunVoice.refreshVoices();
     setTimeout(() => {
