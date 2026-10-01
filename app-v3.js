@@ -17,9 +17,11 @@
     let resizeBound = false;
 
     const anchors = {
-      haeun:{x:.492,y:.371,rx:.040,ry:.018,scale:1.00},
-      seojun:{x:.462,y:.365,rx:.038,ry:.017,scale:.98},
-      yuri:{x:.486,y:.360,rx:.040,ry:.018,scale:.98}
+      // Recalibrated against the actual V8 source portraits.
+      // x/y = lip center, rx/ry = crop radius in normalized source coordinates.
+      haeun:{x:.505,y:.368,rx:.058,ry:.025,scale:1.05},
+      seojun:{x:.475,y:.367,rx:.056,ry:.023,scale:1.04},
+      yuri:{x:.505,y:.363,rx:.058,ry:.025,scale:1.05}
     };
 
     const sequences = {
@@ -61,12 +63,14 @@
 
       const cx=ox+rw*an.x;
       const cy=oy+rh*an.y;
-      const rx=Math.max(14,rw*an.rx);
-      const ry=Math.max(8,rh*an.ry);
+      const rx=Math.max(18,rw*an.rx*an.scale);
+      const ry=Math.max(10,rh*an.ry*an.scale);
 
       mp.style.clipPath=`ellipse(${rx}px ${ry}px at ${cx}px ${cy}px)`;
       mp.style.webkitClipPath=mp.style.clipPath;
       mp.style.transformOrigin=`${cx}px ${cy}px`;
+      mp.style.setProperty("--lip-cx",cx+"px");
+      mp.style.setProperty("--lip-cy",cy+"px");
       mp.style.objectFit="contain";
       mp.style.objectPosition="center center";
     }
