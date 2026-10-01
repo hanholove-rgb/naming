@@ -19,9 +19,9 @@
     // Coordinates are normalized to the original portrait.
     // They are mapped to the visible image on every resize.
     const anchors = {
-      haeun:{x:.505,y:.355,scale:1.00},
-      seojun:{x:.502,y:.335,scale:.96},
-      yuri:{x:.505,y:.350,scale:.98}
+      haeun:{x:.492,y:.371,scale:1.00},
+      seojun:{x:.462,y:.365,scale:.98},
+      yuri:{x:.486,y:.360,scale:.98}
     };
 
     const sequences = {
@@ -108,9 +108,9 @@
   })();
 
   const PORTRAITS = {
-    haeun: "assets/v8/haeun-upper.avif?v=portrait8",
-    seojun: "assets/v8/seojun-upper.avif?v=portrait8",
-    yuri: "assets/v8/yuri-upper.avif?v=portrait8"
+    haeun: "assets/v8/haeun-upper.avif?v=portrait9",
+    seojun: "assets/v8/seojun-upper.avif?v=portrait9",
+    yuri: "assets/v8/yuri-upper.avif?v=portrait9"
   };
   const FALLBACK_PORTRAIT = PORTRAITS.haeun;
 
