@@ -108,8 +108,15 @@
 
       const seq=sequences[currentEmotion]||sequences.neutral;
       const l=layer(),w=wrap();
-      if(l) l.classList.remove("lip-hidden");
-      if(w) w.classList.add("speaking");
+      if(l){
+        l.classList.remove("lip-hidden");
+        l.style.display="block";
+      }
+      if(w){
+        w.classList.remove("speaking");
+        void w.offsetWidth;
+        w.classList.add("speaking");
+      }
 
       let step=0;
       const tick=()=>{
