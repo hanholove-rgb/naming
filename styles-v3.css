@@ -78,3 +78,28 @@
 .portrait-wrap.speaking .mouth-photo{
   animation:photoLipTalk .34s steps(4,end) infinite;
 }
+
+/* Continuous voice chat */
+.voice-chat-status{
+  margin-top:9px;
+  min-height:18px;
+  font-size:11px;
+  line-height:1.45;
+  color:var(--mut);
+  text-align:center;
+  transition:.2s;
+}
+.voice-chat-status.on{color:#d8d0e5}
+.voice-chat-status.is-listening{color:#bff4d9;font-weight:700}
+#mic.voice-active{
+  border-color:rgba(120,229,176,.48);
+  background:rgba(120,229,176,.10);
+}
+#mic.listening{
+  border-color:rgba(255,100,130,.58);
+  background:rgba(255,100,130,.12);
+  box-shadow:0 0 0 3px rgba(255,100,130,.08);
+}
+#mic.listening b{animation:micPulse .9s ease-in-out infinite}
+#mic.unsupported{opacity:.55}
+@keyframes micPulse{50%{transform:scale(1.15)}}
