@@ -12,7 +12,16 @@
 
   const LipSync = (() => {
     let timer = null;
-    let currentPersona = "haeun";
+    let safetyTimer = null;
+    let resizeHandler = null;
+
+    // Mouth anchor in original image coordinates (normalized 0..1).
+    // These are tuned for the current portraits and remapped to the displayed image rect.
+    const anchors = {
+      haeun:{x:.505,y:.405,scale:1.00},
+      seojun:{x:.505,y:.385,scale:1.02},
+      yuri:{x:.505,y:.392,scale:.98}
+    };
 
     const sequences = {
       neutral:["closed","small","mid","small"],
@@ -28,60 +37,77 @@
     const wrap = () => $("#portraitWrap");
     const layer = () => $("#mouthLayer");
     const mouth = () => $("#mouthShape");
+    const portrait = () => $("#heroPortrait");
+
+    function place(personaId=state.personaId){
+      const img=portrait(), w=wrap(), l=layer();
+      if(!img||!w||!l||!img.naturalWidth||!img.naturalHeight) return;
+      const a=anchors[personaId]||anchors.haeun;
+      const cw=w.clientWidth, ch=w.clientHeight;
+      const iw=img.naturalWidth, ih=img.naturalHeight;
+
+      // hero portrait uses object-fit: contain
+      const scale=Math.min(cw/iw,ch/ih);
+      const dw=iw*scale, dh=ih*scale;
+      const ox=(cw-dw)/2, oy=(ch-dh)/2;
+
+      l.style.left=(ox+dw*a.x)+"px";
+      l.style.top=(oy+dh*a.y)+"px";
+      l.style.transform="translate(-50%,-50%) scale("+a.scale+")";
+    }
 
     function setPersona(personaId){
-      currentPersona = personaId || "haeun";
-      const w = wrap();
-      if(!w) return;
-      w.classList.remove("persona-haeun","persona-seojun","persona-yuri");
-      w.classList.add("persona-" + currentPersona);
+      const w=wrap();
+      if(w){
+        w.classList.remove("persona-haeun","persona-seojun","persona-yuri");
+        w.classList.add("persona-"+(personaId||"haeun"));
+      }
+      requestAnimationFrame(()=>place(personaId));
     }
 
     function setFrame(frame){
-      const el = mouth();
-      if(!el) return;
-      el.className = "mouth-shape m-" + frame;
+      const el=mouth();
+      if(el) el.className="mouth-shape m-"+frame;
     }
 
     function stop(){
-      if(timer){
-        clearInterval(timer);
-        timer = null;
+      if(timer){clearInterval(timer);timer=null;}
+      if(safetyTimer){clearTimeout(safetyTimer);safetyTimer=null;}
+      if(resizeHandler){
+        window.removeEventListener("resize",resizeHandler);
+        resizeHandler=null;
       }
       setFrame("closed");
-      const l = layer();
-      const w = wrap();
-      if(l) l.classList.add("lip-hidden");
-      if(w) w.classList.remove("speaking");
+      layer()?.classList.add("lip-hidden");
+      wrap()?.classList.remove("speaking");
     }
 
-    function start({personaId=currentPersona,emotion="neutral"}={}){
+    function start({personaId=state.personaId,emotion="neutral",durationMs=7000}={}){
       stop();
       setPersona(personaId);
-      const seq = sequences[emotion] || sequences.neutral;
-      let step = 0;
-      const l = layer();
-      const w = wrap();
-      if(l) l.classList.remove("lip-hidden");
-      if(w) w.classList.add("speaking");
+      place(personaId);
 
-      const tick = () => {
-        setFrame(seq[step % seq.length]);
-        step++;
-        if(Math.random() < .10){
-          setTimeout(() => {
-            if(timer) setFrame("closed");
-          }, 42);
-        }
+      const seq=sequences[emotion]||sequences.neutral;
+      let step=0;
+      layer()?.classList.remove("lip-hidden");
+      wrap()?.classList.add("speaking");
+
+      resizeHandler=()=>place(personaId);
+      window.addEventListener("resize",resizeHandler,{passive:true});
+
+      const tick=()=>{
+        setFrame(seq[step++%seq.length]);
+        // Slight irregularity makes the motion less mechanical.
+        if(Math.random()<.12) setTimeout(()=>timer&&setFrame("closed"),38);
       };
 
       tick();
-      timer = setInterval(tick, 95);
+      timer=setInterval(tick,92);
+      safetyTimer=setTimeout(stop,Math.max(1500,durationMs));
     }
 
-    return {start,stop,setPersona};
+    return {start,stop,setPersona,place};
   })();
-
 
   const PORTRAITS = {
     haeun: "assets/v3/haeun-neutral.avif?v=stable7",
@@ -139,6 +165,7 @@
       img.style.opacity = "1";
       img.style.visibility = "visible";
       img.dataset.failed = "0";
+      requestAnimationFrame(() => LipSync.place(state.personaId));
     };
     img.onerror = () => {
       if(img.dataset.failed === "1"){
@@ -287,38 +314,45 @@
       return;
     }
 
-    const lipStart = () => {
-      LipSync.start({
-        personaId:state.personaId,
-        emotion:currentEmotion
-      });
-    };
-    const lipStop = () => LipSync.stop();
+    // Start immediately: some browsers delay or omit SpeechSynthesis onstart.
+    const estimatedMs=Math.max(1800,Math.min(18000,String(text||"").length*115));
+    LipSync.start({
+      personaId:state.personaId,
+      emotion:currentEmotion,
+      durationMs:estimatedMs+1400
+    });
+
+    const lipStop=()=>LipSync.stop();
 
     if(window.DugeunVoice && typeof DugeunVoice.speak === "function"){
       DugeunVoice.speak(text,{
         personaId:state.personaId,
         emotion:currentEmotion,
-        onStart:lipStart,
+        onStart:()=>LipSync.place(state.personaId),
         onEnd:lipStop
-      });
+      }).catch?.(lipStop);
+
       if($("#voiceName") && typeof DugeunVoice.getVoiceName === "function"){
-        $("#voiceName").textContent = DugeunVoice.getVoiceName();
+        $("#voiceName").textContent=DugeunVoice.getVoiceName();
       }
       return;
     }
 
-    if(!("speechSynthesis" in window)) return;
+    if(!("speechSynthesis" in window)){
+      lipStop();
+      return;
+    }
+
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ko-KR";
-    u.rate = state.personaId === "seojun" ? .90 : state.personaId === "yuri" ? .98 : .93;
-    u.pitch = state.personaId === "seojun" ? .95 : state.personaId === "yuri" ? 1.08 : 1.04;
-    const ko = speechSynthesis.getVoices().find(v => /^ko/i.test(v.lang));
-    if(ko) u.voice = ko;
-    u.onstart = lipStart;
-    u.onend = lipStop;
-    u.onerror = lipStop;
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="ko-KR";
+    u.rate=state.personaId==="seojun"?.90:state.personaId==="yuri"?.98:.93;
+    u.pitch=state.personaId==="seojun"?.95:state.personaId==="yuri"?1.08:1.04;
+    const ko=speechSynthesis.getVoices().find(v=>/^ko/i.test(v.lang));
+    if(ko) u.voice=ko;
+    u.onstart=()=>LipSync.place(state.personaId);
+    u.onend=lipStop;
+    u.onerror=lipStop;
     speechSynthesis.speak(u);
   }
 
