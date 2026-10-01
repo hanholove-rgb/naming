@@ -49,21 +49,32 @@
   filter:none;
 }
 .mouth-photo.mouth-small{
-  transform:scaleX(.995) scaleY(1.035);
+  transform:scaleX(.985) scaleY(1.12) translateY(.5px);
   filter:brightness(.995);
 }
 .mouth-photo.mouth-mid{
-  transform:scaleX(.99) scaleY(1.075);
-  filter:brightness(.99) contrast(1.01);
+  transform:scaleX(.97) scaleY(1.28) translateY(1px);
+  filter:brightness(.99) contrast(1.015);
 }
 .mouth-photo.mouth-open{
-  transform:scaleX(.975) scaleY(1.13);
-  filter:brightness(.975) contrast(1.025);
+  transform:scaleX(.94) scaleY(1.52) translateY(1.5px);
+  filter:brightness(.97) contrast(1.025);
 }
 .mouth-photo.mouth-round{
-  transform:scaleX(.955) scaleY(1.10);
-  filter:brightness(.985) contrast(1.015);
+  transform:scaleX(.90) scaleY(1.38) translateY(1px);
+  filter:brightness(.98) contrast(1.02);
 }
 .portrait-wrap.speaking .hero-portrait{
   transform:scale(1.003);
+}
+
+@keyframes photoLipTalk{
+  0%{transform:scaleX(1) scaleY(1) translateY(0)}
+  22%{transform:scaleX(.985) scaleY(1.12) translateY(.5px)}
+  48%{transform:scaleX(.955) scaleY(1.38) translateY(1px)}
+  72%{transform:scaleX(.94) scaleY(1.52) translateY(1.5px)}
+  100%{transform:scaleX(1) scaleY(1) translateY(0)}
+}
+.portrait-wrap.speaking .mouth-photo{
+  animation:photoLipTalk .34s steps(4,end) infinite;
 }
