@@ -108,9 +108,9 @@
   })();
 
   const PORTRAITS = {
-    haeun: "assets/v3/haeun-neutral.avif?v=stable7",
-    seojun: "assets/v3/seojun-neutral.avif?v=stable7",
-    yuri: "assets/v3/yuri-neutral.avif?v=stable7"
+    haeun: "assets/v8/haeun-upper.avif?v=portrait8",
+    seojun: "assets/v8/seojun-upper.avif?v=portrait8",
+    yuri: "assets/v8/yuri-upper.avif?v=portrait8"
   };
   const FALLBACK_PORTRAIT = PORTRAITS.haeun;
 
