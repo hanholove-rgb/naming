@@ -9,3 +9,12 @@
 .hero-portrait{image-rendering:auto;backface-visibility:hidden}
 .voice-detail{max-width:240px;text-align:right;color:#d8d0e3;font-size:11px;line-height:1.35}
 @media(max-width:500px){.voice-detail{max-width:145px}}
+
+.hero-portrait.emotion-neutral{filter:none}
+.hero-portrait.emotion-smile{filter:saturate(1.04) brightness(1.02)}
+.hero-portrait.emotion-happy{filter:saturate(1.08) brightness(1.03)}
+.hero-portrait.emotion-shy{filter:saturate(1.04) brightness(1.02)}
+.hero-portrait.emotion-concern{filter:saturate(.92) brightness(.95)}
+.hero-portrait.emotion-serious{filter:saturate(.95) contrast(1.04)}
+.hero-portrait.emotion-thinking{filter:saturate(.94) contrast(1.03)}
+.hero-portrait.emotion-surprised{filter:saturate(1.08) brightness(1.03)}
