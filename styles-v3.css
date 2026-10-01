@@ -104,3 +104,27 @@
   .portrait-wrap.persona-seojun{--mouth-y:64.5%}
   .portrait-wrap.persona-yuri{--mouth-y:63.5%}
 }
+
+/* Lip motion v2: image-rect tracking + upper-body framing */
+.stage{background-color:#12101a}
+.portrait-wrap{position:absolute;inset:0;overflow:hidden}
+.hero-portrait{
+  object-fit:contain !important;
+  object-position:center center !important;
+  width:100%;
+  height:100%;
+}
+.mouth-layer{
+  position:absolute;
+  width:58px;
+  height:34px;
+  z-index:8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  opacity:.94;
+  transition:opacity .08s linear;
+}
+.mouth-layer.lip-hidden{opacity:0}
+.portrait-wrap.speaking .hero-portrait{transform:scale(1.003)}
