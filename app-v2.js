@@ -142,17 +142,77 @@
     if(src) $("#heroPortrait").src=src;
   }
 
-  function speak(text){
+  const voiceProfiles = {
+    haeun: { rate: .91, pitch: 1.05, preferred: ["SunHi","Heami","Yuna","Jiyun","Google 한국어","Korean"] },
+    seojun:{ rate: .89, pitch: .94, preferred: ["InJoon","Hyunsu","BongJin","Google 한국어","Korean"] },
+    yuri:  { rate: .98, pitch: 1.08, preferred: ["SunHi","Yuna","Jiyun","Heami","Google 한국어","Korean"] }
+  };
+  let koreanVoices=[];
+  function refreshVoices(){
+    if(!("speechSynthesis" in window)) return;
+    koreanVoices=speechSynthesis.getVoices().filter(v=>/^ko(?:-|_)?KR/i.test(v.lang)||/^ko/i.test(v.lang));
+  }
+  function bestVoice(personaId){
+    refreshVoices();
+    if(!koreanVoices.length) return null;
+    const profile=voiceProfiles[personaId]||voiceProfiles.haeun;
+    const scored=koreanVoices.map(v=>{
+      let score=v.localService?2:0;
+      profile.preferred.forEach((k,i)=>{ if((v.name||"").toLowerCase().includes(k.toLowerCase())) score+=20-i; });
+      if(/natural|neural|premium/i.test(v.name||"")) score+=8;
+      return {v,score};
+    }).sort((a,b)=>b.score-a.score);
+    return scored[0].v;
+  }
+  if("speechSynthesis" in window){
+    refreshVoices();
+    speechSynthesis.onvoiceschanged=refreshVoices;
+  }
+  function splitSpeech(text){
+    const clean=String(text).replace(/\s+/g," ").trim();
+    const parts=clean.match(/[^.!?。！？]+[.!?。！？]?/g)||[clean];
+    const out=[];
+    for(const p of parts){
+      const s=p.trim();
+      if(!s) continue;
+      if(s.length<=58){ out.push(s); continue; }
+      const halves=s.split(/(?<=,|，|;|;|:)\s*/).filter(Boolean);
+      if(halves.length>1) out.push(...halves.map(x=>x.trim()).filter(Boolean));
+      else out.push(s);
+    }
+    return out.slice(0,8);
+  }
+  function speak(text, emotion="neutral"){
     if(!state.voice || !("speechSynthesis" in window)) return;
     speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang="ko-KR"; u.rate=.96; u.pitch=1;
-    const voices=speechSynthesis.getVoices();
-    const v=voices.find(x=>/ko-KR/i.test(x.lang));
-    if(v) u.voice=v;
-    u.onstart=()=>$("#heroPortrait").style.transform="scale(1.018)";
-    u.onend=u.onerror=()=>$("#heroPortrait").style.transform="";
-    speechSynthesis.speak(u);
+    const profile=voiceProfiles[state.personaId]||voiceProfiles.haeun;
+    const voice=bestVoice(state.personaId);
+    const emotionRate={concern:-.06,serious:-.04,thinking:-.04,happy:.04,smile:.01,shy:-.02}[emotion]||0;
+    const emotionPitch={concern:-.02,serious:-.03,happy:.03,smile:.01,shy:.02}[emotion]||0;
+    const parts=splitSpeech(text);
+    let idx=0;
+    const img=$("#heroPortrait");
+    const speakNext=()=>{
+      if(!state.voice || idx>=parts.length){
+        if(img) img.style.transform="";
+        return;
+      }
+      const u=new SpeechSynthesisUtterance(parts[idx++]);
+      u.lang="ko-KR";
+      u.rate=Math.max(.72,Math.min(1.12,profile.rate+emotionRate));
+      u.pitch=Math.max(.75,Math.min(1.25,profile.pitch+emotionPitch));
+      u.volume=1;
+      if(voice) u.voice=voice;
+      u.onstart=()=>{ if(img) img.style.transform="scale(1.012)"; };
+      u.onerror=()=>{ if(img) img.style.transform=""; };
+      u.onend=()=>{
+        if(img) img.style.transform="";
+        const pause=/[?!！？]$/.test(parts[idx-1])?230:/[.]$/.test(parts[idx-1])?170:110;
+        setTimeout(speakNext,pause);
+      };
+      speechSynthesis.speak(u);
+    };
+    speakNext();
   }
 
   function contextFor(message){
@@ -183,7 +243,7 @@
       saveMemories(result.memoryCandidates);
       addScore(result.scoreDelta||0);
       save();
-      speak(result.reply);
+      speak(result.reply,result.emotion||"neutral");
     },280+Math.min(520,message.length*7));
   }
 
@@ -202,7 +262,7 @@
       state.lastReply=first;
       $("#subtitle").textContent=first;
       setEmotion("smile");
-      save(); speak(first);
+      save(); speak(first,"smile");
     }else{
       const last=[...state.history].reverse().find(m=>m.role==="ai");
       if(last) $("#subtitle").textContent=last.text;
@@ -254,7 +314,7 @@
     $("#dateModal").classList.add("hidden");
     const scene=DugeunAI.SCENES[state.scene];
     const msg=scene.name+"로 장면을 바꿨어요. 분위기가 조금 달라졌네요.";
-    addMessage("ai",msg); $("#subtitle").textContent=msg; setEmotion("smile"); speak(msg);
+    addMessage("ai",msg); $("#subtitle").textContent=msg; setEmotion("smile"); speak(msg,"smile");
   });
 
   $("#settings").onclick=()=>$("#settingsModal").classList.remove("hidden");
